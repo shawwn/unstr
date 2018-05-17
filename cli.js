@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const unstr = require(".")
 const Path = require('path');
 const fs = require('fs');
