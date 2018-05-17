@@ -1,11 +1,15 @@
 {
-  "name": "@sweetiebird/stringtable",
+  "name": "unstr",
   "version": "0.0.1",
-  "description": "",
+  "description": "Simple stringtable localization",
   "main": "index.js",
   "module": "main.js",
+  "bin": {
+    "unstr": "cli.js"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run translate -- example.md es",
+    "translate": "node cli.js"
   },
   "repository": "git+https://github.com/sweetiebird/stringtable.git",
   "author": "Shawn Presser <shawnpresser@gmail.com>",
@@ -16,6 +20,5 @@
   "homepage": "https://github.com/sweetiebird/stringtable#readme",
   "dependencies": {
     "esm": "^3.0.34"
-  },
-  "private": false
+  }
 }

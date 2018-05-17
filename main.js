@@ -1,5 +1,4 @@
 // ESM syntax is supported.
-import glob from 'glob'
 import Path from 'path'
 import fs from 'fs'
 
@@ -7,22 +6,24 @@ export function replace (string, stringTable, shouldThrow=false) {
   if (typeof string !== 'string' || !string) return string
   if (typeof stringTable !== 'object' || !stringTable) return string
 
-  // replace any @{StringTable_key} forms with the corresponding value
-  var strExpr = /(\\*)\$\{([^}]+)\}/g
-  return string.replace(strExpr, function (orig, esc, name) {
+  // replace any %{StringTable_key} forms with the corresponding value
+  var strExpr = /(\\*)\%\{([^}]+)\}/g
+  var out = string.replace(strExpr, function (orig, esc, name) {
+    //console.dir({orig, esc, name})
     esc = esc.length && esc.length % 2
     if (esc) return orig
-    if (!is(stringTable[name])) {
+    if (undefined === stringTable[name]) {
       if (shouldThrow) {
         throw new Error('Failed to interpolate string: ' + orig + ' for ' + require('util').inspect({string, stringTable}))
       }
-      return string;
+      return orig;
     }
 
     return stringTable[name]
   })
+  //console.dir({out, strExpr, string, stringTable});
+  return out;
 }
-export default replace;
 
 export function parse(str) {
   str = str.split(/[\/][\/][^\n]+[\n]/g).join("\n");
@@ -45,9 +46,8 @@ export function parse(str) {
   }
   return result;
 }
-export default function parse;
 
-export const languageCodes = {
+export const languages = {
   armenian: "hy",
   chinese: "zh",
   czech: "cs",
@@ -77,9 +77,10 @@ export const languageCodes = {
   urdu: "ur",
 }
 
-export function loadSync(path, language="en") {
-  const lang = languageCodes[language.toLowerCase()] ||
-    throw new Error(`Invalid language ${language}`)
+export function loadSync(path, lang="en") {
+  if (Object.values(languages).indexOf(lang) < 0) {
+    throw new Error(`Invalid language ${lang}`);
+  }
   const mergeFiles = [
     `${path}`,
     `${path}_${lang}`,
@@ -109,7 +110,7 @@ function isFile(path) {
   return fs.existsSync(path) ?  fs.statSync(path).isFile() : false;
 }
 
-function readFile(path) {
+export function readFile(path) {
   if (isFile(path)) {
     return _readFile(path);
   }
@@ -120,7 +121,7 @@ function _readFile(path) {
 }
 
 function _parseFile(path, result) {
-  return Object.assign(result||{}, parseSync(_readFile(path)));
+  return Object.assign(result||{}, parse(_readFile(path)));
 }
 
 function tryReadFile(path, ext="") {
